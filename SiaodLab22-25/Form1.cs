@@ -17,12 +17,12 @@ namespace SiaodLab22_25
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            dataGridView1.Rows.Add(5);
+            dataGridView1.Rows.Add(2);
             dataGridView1.Rows[0].Cells[1].Value = "Простое 2Ф";
             dataGridView1.Rows[1].Cells[1].Value = "Простое 1Ф";
-            dataGridView1.Rows[2].Cells[1].Value = "Естественное 2Ф";
-            dataGridView1.Rows[3].Cells[1].Value = "Естественное 1Ф";
-            dataGridView1.Rows[4].Cells[1].Value = "Поглощение";
+            //dataGridView1.Rows[2].Cells[1].Value = "Естественное 2Ф";
+            //dataGridView1.Rows[3].Cells[1].Value = "Естественное 1Ф";
+            //dataGridView1.Rows[4].Cells[1].Value = "Поглощение";
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
             {
                 dataGridView1.Rows[i].Cells[0].Value = true;
@@ -46,9 +46,6 @@ namespace SiaodLab22_25
             Stopwatch sw = new Stopwatch();
             sw.Start();
             int n = array.Length;
-            int mid = n / 2;
-            if (n % 2 == 1)
-                mid++;
             int[] A = new int[n];
             int[] B = new int[n];
             
@@ -138,90 +135,259 @@ namespace SiaodLab22_25
                     }
                     step = step + SerLen; 
                 }
+                while ((Aindex < AInd) && (Bindex < BInd))
+                {
+                    Rezalt.comparisons++;
+                    if (A[Aindex] < B[Bindex])
+                    {
+                        Rezalt.reinstallation++;
+                        array[Arrayindex] = A[Aindex];
+                        Aindex++; Arrayindex++;
+                    }
+                    else
+                    {
+                        Rezalt.reinstallation++;
+                        array[Arrayindex] = B[Bindex];
+                        Bindex++; Arrayindex++;
+                    }
+                }
+                while (Aindex < AInd)
+                {
+                    Rezalt.reinstallation++;
+                    array[Arrayindex] = A[Aindex];
+                    Aindex++; Arrayindex++;
+                }
+                while (Bindex < BInd)
+                {
+                    Rezalt.reinstallation++;
+                    array[Arrayindex] = B[Bindex];
+                    Bindex++; Arrayindex++;
+                }
+                step = step + SerLen;
                 SerLen = SerLen * 2;
             }
-            //SerLen = SerLen /2;
-            //for (int i = 0; i < A.Length; i++)
-            //    A[i] = 0;
-            //for (int i = 0; i < B.Length; i++)
-            //    B[i] = 0;
-            //int Ai = 0;
-            //int Bi = 0;
-            //int Arrayi = 0;
-            //for (int j1 = 0; j1 < SerLen; j1++)
-            //{
-            //    Rezalt.reinstallation++;
-            //    A[Ai] = array[j1];
-            //    Ai++;
-            //}
-
-            //for (int j1 = SerLen; j1 < n; j1++)
-            //{
-            //    Rezalt.reinstallation++;
-            //    B[Bi] = array[j1];
-            //    Bi++;
-            //}
-            //Ai = 0;
-            //Bi = 0;
-            //while ((Ai < SerLen) && (Bi < n - SerLen))
-            //{
-            //    Rezalt.comparisons++;
-            //    if (A[Ai] < B[Bi])
-            //    {
-            //        Rezalt.reinstallation++;
-            //        array[Arrayi] = A[Ai];
-            //        Ai++; Arrayi++;
-            //    }
-            //    else
-            //    {
-            //        Rezalt.reinstallation++;
-            //        array[Arrayi] = B[Bi];
-            //        Bi++; Arrayi++;
-            //    }
-            //}
-            //while (Ai < SerLen)
-            //{
-            //    Rezalt.reinstallation++;
-            //    array[Arrayi] = A[Ai];
-            //    Ai++; Arrayi++;
-            //}
-            //while (Bi < n - SerLen)
-            //{
-            //    Rezalt.reinstallation++;
-            //    array[Arrayi] = B[Bi];
-            //    Bi++; Arrayi++;
-            //}
             sw.Stop();
             Rezalt.time = (ulong)sw.ElapsedMilliseconds;
             return Rezalt;
         }
-        static int[] Merge_Sort(int[] massive)
+        rezult mergeOnePhase(int[] array)
         {
-            if (massive.Length == 1)
-                return massive;
-            int mid_point = massive.Length / 2;
-            return Merge(Merge_Sort(massive.Take(mid_point).ToArray()), Merge_Sort(massive.Skip(mid_point).ToArray()));
+            rezult Rezalt = new rezult();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            int n = array.Length;
+            int[] A = new int[n];
+            int[] B = new int[n];
+            int[] AM = new int[n];
+            int[] BM = new int[n];
+            bool AB = true;
+            int AInd = 0; int BInd = 0;
+            int st = 0;
+            int SerLen = 1;
+
+            while (st + SerLen < n)
+            {
+                if (AB)
+                {
+                    for (int j1 = st; j1 < st + SerLen; j1++)
+                    {
+                        Rezalt.reinstallation++;
+                        A[AInd] = array[j1];
+                        AInd++;
+                    }
+                    AB = false;
+                }
+                else
+                {
+                    for (int j1 = st; j1 < st + SerLen; j1++)
+                    {
+                        Rezalt.reinstallation++;
+                        B[BInd] = array[j1];
+                        BInd++;
+                    }
+                    AB = true;
+                }
+                st = st + SerLen;
+
+            };
+            if (AB)
+            {
+                for (int j1 = st; j1 < n; j1++)
+                {
+                    Rezalt.reinstallation++;
+                    A[AInd] = array[j1];
+                    AInd++;
+                }
+            }
+            else
+            {
+                for (int j1 = st; j1 < n; j1++)
+                {
+                    Rezalt.reinstallation++;
+                    B[BInd] = array[j1];
+                    BInd++;
+                }
+            }
+            int ALIndex = AInd; int BLIndex = BInd;
+            while (SerLen < array.Length)
+            {
+                int step = SerLen;
+                int Aindex = 0;
+                int Bindex = 0;
+                int AMindex = 0;
+                int BMindex = 0;
+                AB = true;
+                while (step <= ALIndex && step <= BLIndex)
+                {
+                    if (AB)
+                    {
+                        while ((Aindex < step) && (Bindex < step))
+                        {
+                            Rezalt.comparisons++;
+                            if (A[Aindex] < B[Bindex])
+                            {
+                                Rezalt.reinstallation++;
+                                AM[AMindex] = A[Aindex];
+                                Aindex++; AMindex++;
+                            }
+                            else
+                            {
+                                Rezalt.reinstallation++;
+                                AM[AMindex] = B[Bindex];
+                                Bindex++; AMindex++;
+                            }
+                        }
+                        while (Aindex < step)
+                        {
+                            Rezalt.reinstallation++;
+                            AM[AMindex] = A[Aindex];
+                            Aindex++; AMindex++;
+                        }
+                        while (Bindex < step)
+                        {
+                            Rezalt.reinstallation++;
+                            AM[AMindex] = B[Bindex];
+                            Bindex++; AMindex++;
+                        }
+                        step = step + SerLen;
+
+                        AB = false;
+                    }
+                    else
+                    {
+                        while ((Aindex < step) && (Bindex < step))
+                        {
+                            Rezalt.comparisons++;
+                            if (A[Aindex] < B[Bindex])
+                            {
+                                Rezalt.reinstallation++;
+                                BM[BMindex] = A[Aindex];
+                                Aindex++; BMindex++;
+                            }
+                            else
+                            {
+                                Rezalt.reinstallation++;
+                                BM[BMindex] = B[Bindex];
+                                Bindex++; BMindex++;
+                            }
+                        }
+                        while (Aindex < step)
+                        {
+                            Rezalt.reinstallation++;
+                            BM[BMindex] = A[Aindex];
+                            Aindex++; BMindex++;
+                        }
+                        while (Bindex < step)
+                        {
+                            Rezalt.reinstallation++;
+                            BM[BMindex] = B[Bindex];
+                            Bindex++; BMindex++;
+                        }
+                        step = step + SerLen;
+                        AB = true;
+                    }
+
+                }
+                if (AB)
+                {
+                    while ((Aindex < ALIndex) && (Bindex < BLIndex))
+                    {
+                        Rezalt.comparisons++;
+                        if (A[Aindex] < B[Bindex])
+                        {
+                            Rezalt.reinstallation++;
+                            AM[AMindex] = A[Aindex];
+                            Aindex++; AMindex++;
+                        }
+                        else
+                        {
+                            Rezalt.reinstallation++;
+                            AM[AMindex] = B[Bindex];
+                            Bindex++; AMindex++;
+                        }
+                    }
+                    while (Aindex < ALIndex)
+                    {
+                        Rezalt.reinstallation++;
+                        AM[AMindex] = A[Aindex];
+                        Aindex++; AMindex++;
+                    }
+                    while (Bindex < BLIndex)
+                    {
+                        Rezalt.reinstallation++;
+                        AM[AMindex] = B[Bindex];
+                        Bindex++; AMindex++;
+                    }
+
+                }
+                else
+                {
+                    while ((Aindex < ALIndex) && (Bindex < BLIndex))
+                    {
+                        Rezalt.comparisons++;
+                        if (A[Aindex] < B[Bindex])
+                        {
+                            Rezalt.reinstallation++;
+                            BM[BMindex] = A[Aindex];
+                            Aindex++; BMindex++;
+                        }
+                        else
+                        {
+                            Rezalt.reinstallation++;
+                            BM[BMindex] = B[Bindex];
+                            Bindex++; BMindex++;
+                        }
+                    }
+                    while (Aindex < ALIndex)
+                    {
+                        Rezalt.reinstallation++;
+                        BM[BMindex] = A[Aindex];
+                        Aindex++; BMindex++;
+                    }
+                    while (Bindex < BLIndex)
+                    {
+                        Rezalt.reinstallation++;
+                        BM[BMindex] = B[Bindex];
+                        Bindex++; BMindex++;
+                    }
+
+
+                }
+                ALIndex = AMindex;
+                BLIndex = BMindex;
+                SerLen = SerLen * 2;
+                (A, AM) = (AM, A);
+                (B, BM) = (BM, B);
+            }
+            for(int i =0 ; i < A.Length; i++)
+            {
+            array[i] = A[i];
+            }
+            sw.Stop();
+            Rezalt.time = (ulong)sw.ElapsedMilliseconds;
+            return Rezalt;
         }
 
-        static int[] Merge(int[] mass1, int[] mass2)
-        {
-            int a = 0, b = 0;
-            int[] merged = new int[mass1.Length + mass2.Length];
-            for (int i = 0; i < mass1.Length + mass2.Length; i++)
-            {
-                if (b < mass2.Length && a < mass1.Length)
-                    if (mass1[a] > mass2[b])
-                        merged[i] = mass2[b++];
-                    else 
-                        merged[i] = mass1[a++];
-                else
-                    if (b < mass2.Length)
-                    merged[i] = mass2[b++];
-                else
-                    merged[i] = mass1[a++];
-            }
-            return merged;
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -245,7 +411,6 @@ namespace SiaodLab22_25
             {
                 array[i] = rnd.Next(0, array.Length);
             }
-            int[] ar =Merge_Sort(array);
             rezult rez;
             if (dataGridView1.Rows[0].Cells[0].Value.Equals(true))
             {
@@ -265,68 +430,68 @@ namespace SiaodLab22_25
             }
             if (dataGridView1.Rows[1].Cells[0].Value.Equals(true))
             {
-                //int[] array_tmp = (int[])array.Clone();
-                //rez = ViborSort(array_tmp);
-                //dataGridView1.Rows[1].Cells[2].Value = Convert.ToString(rez.comparisons);
-                //dataGridView1.Rows[1].Cells[3].Value = Convert.ToString(rez.reinstallation);
-                //dataGridView1.Rows[1].Cells[4].Value = Convert.ToString(rez.time);
-                //if (Check(rez.newArray))
-                //{
-                //    dataGridView1.Rows[1].Cells[5].Value = "да";
-                //}
-                //else
-                //{
-                //    dataGridView1.Rows[1].Cells[5].Value = "нет";
-                //}
+                int[] array_tmp = (int[])array.Clone();
+                rez = mergeOnePhase(array_tmp);
+                dataGridView1.Rows[1].Cells[2].Value = Convert.ToString(rez.comparisons);
+                dataGridView1.Rows[1].Cells[3].Value = Convert.ToString(rez.reinstallation);
+                dataGridView1.Rows[1].Cells[4].Value = Convert.ToString(rez.time);
+                if (Check(array_tmp))
+                {
+                    dataGridView1.Rows[1].Cells[5].Value = "да";
+                }
+                else
+                {
+                    dataGridView1.Rows[1].Cells[5].Value = "нет";
+                }
             }
-            if (dataGridView1.Rows[2].Cells[0].Value.Equals(true))
-            {
-                //int[] array_tmp = (int[])array.Clone();
-                //rez = SortingByDirectInclusions(array_tmp);
-                //dataGridView1.Rows[2].Cells[2].Value = Convert.ToString(rez.comparisons);
-                //dataGridView1.Rows[2].Cells[3].Value = Convert.ToString(rez.reinstallation);
-                //dataGridView1.Rows[2].Cells[4].Value = Convert.ToString(rez.time);
-                //if (Check(rez.newArray))
-                //{
-                //    dataGridView1.Rows[2].Cells[5].Value = "да";
-                //}
-                //else
-                //{
-                //    dataGridView1.Rows[2].Cells[5].Value = "нет";
-                //}
-            }
-            if (dataGridView1.Rows[3].Cells[0].Value.Equals(true))
-            {
-                //int[] array_tmp = (int[])array.Clone();
-                //rez = Quicksort(array_tmp, 0, array_tmp.Length);
-                //dataGridView1.Rows[3].Cells[2].Value = Convert.ToString(rez.comparisons);
-                //dataGridView1.Rows[3].Cells[3].Value = Convert.ToString(rez.reinstallation);
-                //dataGridView1.Rows[3].Cells[4].Value = Convert.ToString(rez.time);
-                //if (Check(rez.newArray))
-                //{
-                //    dataGridView1.Rows[3].Cells[5].Value = "да";
-                //}
-                //else
-                //{
-                //    dataGridView1.Rows[3].Cells[5].Value = "нет";
-                //}
-            }
-            if (dataGridView1.Rows[4].Cells[0].Value.Equals(true))
-            {
-                //int[] array_tmp = (int[])array.Clone();
-                //rez = ShellSort(array_tmp);
-                //dataGridView1.Rows[4].Cells[2].Value = Convert.ToString(rez.comparisons);
-                //dataGridView1.Rows[4].Cells[3].Value = Convert.ToString(rez.reinstallation);
-                //dataGridView1.Rows[4].Cells[4].Value = Convert.ToString(rez.time);
-                //if (Check(rez.newArray))
-                //{
-                //    dataGridView1.Rows[4].Cells[5].Value = "да";
-                //}
-                //else
-                //{
-                //    dataGridView1.Rows[4].Cells[5].Value = "нет";
-                //}
-            }
+            //if (dataGridView1.Rows[2].Cells[0].Value.Equals(true))
+            //{
+            //    int[] array_tmp = (int[])array.Clone();
+            //    rez = SortingByDirectInclusions(array_tmp);
+            //    dataGridView1.Rows[2].Cells[2].Value = Convert.ToString(rez.comparisons);
+            //    dataGridView1.Rows[2].Cells[3].Value = Convert.ToString(rez.reinstallation);
+            //    dataGridView1.Rows[2].Cells[4].Value = Convert.ToString(rez.time);
+            //    if (Check(rez.newArray))
+            //    {
+            //        dataGridView1.Rows[2].Cells[5].Value = "да";
+            //    }
+            //    else
+            //    {
+            //        dataGridView1.Rows[2].Cells[5].Value = "нет";
+            //    }
+            //}
+            //if (dataGridView1.Rows[3].Cells[0].Value.Equals(true))
+            //{
+            //    int[] array_tmp = (int[])array.Clone();
+            //    rez = Quicksort(array_tmp, 0, array_tmp.Length);
+            //    dataGridView1.Rows[3].Cells[2].Value = Convert.ToString(rez.comparisons);
+            //    dataGridView1.Rows[3].Cells[3].Value = Convert.ToString(rez.reinstallation);
+            //    dataGridView1.Rows[3].Cells[4].Value = Convert.ToString(rez.time);
+            //    if (Check(rez.newArray))
+            //    {
+            //        dataGridView1.Rows[3].Cells[5].Value = "да";
+            //    }
+            //    else
+            //    {
+            //        dataGridView1.Rows[3].Cells[5].Value = "нет";
+            //    }
+            //}
+            //if (dataGridView1.Rows[4].Cells[0].Value.Equals(true))
+            //{
+            //    int[] array_tmp = (int[])array.Clone();
+            //    rez = ShellSort(array_tmp);
+            //    dataGridView1.Rows[4].Cells[2].Value = Convert.ToString(rez.comparisons);
+            //    dataGridView1.Rows[4].Cells[3].Value = Convert.ToString(rez.reinstallation);
+            //    dataGridView1.Rows[4].Cells[4].Value = Convert.ToString(rez.time);
+            //    if (Check(rez.newArray))
+            //    {
+            //        dataGridView1.Rows[4].Cells[5].Value = "да";
+            //    }
+            //    else
+            //    {
+            //        dataGridView1.Rows[4].Cells[5].Value = "нет";
+            //    }
+            //}
 
             bool cheked = false;
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
