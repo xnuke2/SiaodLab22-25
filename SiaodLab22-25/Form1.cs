@@ -5,6 +5,9 @@ using System.Security.Cryptography;
 using static SiaodLab22_25.Form1;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections;
+using System.CodeDom;
 
 namespace SiaodLab22_25
 {
@@ -17,11 +20,11 @@ namespace SiaodLab22_25
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            dataGridView1.Rows.Add(2);
+            dataGridView1.Rows.Add(4);
             dataGridView1.Rows[0].Cells[1].Value = "Простое 2Ф";
             dataGridView1.Rows[1].Cells[1].Value = "Простое 1Ф";
-            //dataGridView1.Rows[2].Cells[1].Value = "Естественное 2Ф";
-            //dataGridView1.Rows[3].Cells[1].Value = "Естественное 1Ф";
+            dataGridView1.Rows[2].Cells[1].Value = "Естественное 2Ф";
+            dataGridView1.Rows[3].Cells[1].Value = "Естественное 1Ф";
             //dataGridView1.Rows[4].Cells[1].Value = "Поглощение";
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
             {
@@ -388,6 +391,291 @@ namespace SiaodLab22_25
             return Rezalt;
         }
 
+        rezult mergeNatural(int[] array)
+        {
+            rezult Rezalt = new rezult();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            int n = array.Length;
+            int AInd = 1; int BInd = 1; int SerInd;
+            while (true)
+            {
+                int[] A = new int[n];
+                int[] B = new int[n];
+                bool AB = true;
+                AInd = 0; BInd = 0; SerInd = 0;
+                while (SerInd < n)
+                {
+                   if (AB)
+                    {
+                        A[AInd++] = array[SerInd++];
+                        while(SerInd < n && array[SerInd - 1] <= array[SerInd])
+                        {
+                            Rezalt.comparisons++;
+                            Rezalt.reinstallation++;
+                            A[AInd++] = array[SerInd++];                            
+                        }
+                        Rezalt.comparisons++;
+                        AB = false;
+                    }
+                    else
+                    {
+                        B[BInd++] = array[SerInd++];
+                        while (SerInd < n && array[SerInd - 1] <= array[SerInd])
+                        {
+                            Rezalt.comparisons++;
+                            Rezalt.reinstallation++;
+                            B[BInd++] = array[SerInd++];
+                        }
+                        Rezalt.comparisons++;
+                        AB = true;
+                    }
+
+                };
+                if (BInd == 0) break;
+                int Aindex = 0;
+                int Bindex = 0;
+                int Arrayindex = 0;
+                int AendSer;
+                int BendSer;
+                while (Aindex < AInd && Bindex < BInd)
+                {
+                    int Btmp = Bindex;
+                    while (Btmp < BInd && B[Btmp] <= B[Btmp + 1])
+                    {
+                        Rezalt.comparisons++;
+                        Btmp++;
+                    }
+                    Rezalt.comparisons++;
+                    BendSer = Btmp;
+                    if (BendSer == BInd) BendSer--;
+                    int Atmp = Aindex;
+                    while (Atmp < AInd && (A[Atmp] <= A[Atmp + 1]))
+                    {
+                        Rezalt.comparisons++;
+                        Atmp++;
+                    }
+                    Rezalt.comparisons++;
+                    AendSer = Atmp;
+                    if (AendSer == AInd) AendSer--;
+                    while (Aindex <= AendSer && Bindex <= BendSer)
+                    {
+                        Rezalt.comparisons++;
+                        if (A[Aindex] < B[Bindex])
+                        {
+                            Rezalt.reinstallation++;
+                            array[Arrayindex] = A[Aindex];
+                            Aindex++; Arrayindex++;
+                        }
+                        else
+                        {
+                            Rezalt.reinstallation++;
+                            array[Arrayindex] = B[Bindex];
+                            Bindex++; Arrayindex++;
+                        }
+                    }
+                    while (Bindex <= BendSer)
+                    {
+                        Rezalt.reinstallation++;
+                        array[Arrayindex] = B[Bindex];
+                        Bindex++; Arrayindex++;
+                    }
+                    while (Aindex <= AendSer)
+                    {
+                        Rezalt.reinstallation++;
+                        array[Arrayindex++] = A[Aindex++];
+                    }
+
+                }
+
+
+
+                while (Bindex < BInd)
+                {
+                    Rezalt.reinstallation++;
+                    array[Arrayindex++] = B[Bindex++];
+
+                }
+                while (Aindex < AInd)
+                {
+                    Rezalt.reinstallation++;
+                    array[Arrayindex++] = A[Aindex++];
+                }
+            }
+            sw.Stop();
+            Rezalt.time = (ulong)sw.ElapsedMilliseconds;
+            return Rezalt;
+        }
+
+        rezult mergeNaturalOnePhase(int[] array)
+        {
+            rezult Rezalt = new rezult();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            int n = array.Length;
+            int[] A = new int[n];
+            int[] B = new int[n];
+            int[] AM = new int[n];
+            int[] BM = new int[n];
+            bool AB = true;
+            int AInd = 0; int BInd = 0;int SerInd = 0;
+
+
+            while (SerInd < n)
+            {
+                if (AB)
+                {
+                    A[AInd++] = array[SerInd++];
+                    while (SerInd < n && array[SerInd - 1] <= array[SerInd])
+                    {
+                        Rezalt.comparisons++;
+                        Rezalt.reinstallation++;
+                        A[AInd++] = array[SerInd++];
+                    }
+                    Rezalt.comparisons++;
+                    AB = false;
+                }
+                else
+                {
+                    B[BInd++] = array[SerInd++];
+                    while (SerInd < n && array[SerInd - 1] <= array[SerInd])
+                    {
+                        Rezalt.comparisons++;
+                        Rezalt.reinstallation++;
+                        B[BInd++] = array[SerInd++];
+                    }
+                    Rezalt.comparisons++;
+                    AB = true;
+                }
+
+            };
+
+            while (true)
+            {
+                
+                int Aindex = 0;
+                int Bindex = 0;
+                int AArrayindex = 0;
+                int BArrayindex = 0;
+                int AendSer;
+                int BendSer;
+                AB = true;
+                while (Aindex < AInd || Bindex < BInd)
+                {
+                    if (AB)
+                    {
+                        int Btmp = Bindex;
+                        while (Btmp < BInd - 1 && B[Btmp] <= B[Btmp + 1])
+                        {
+                            Rezalt.comparisons++;
+                            Btmp++;
+                        }
+                        Rezalt.comparisons++;
+                        BendSer = Btmp;
+                        if (BendSer == BInd) BendSer--;
+                        
+                        int Atmp = Aindex;
+                        while (Atmp < AInd-1 && (A[Atmp] <= A[Atmp + 1]))
+                        {
+                            Rezalt.comparisons++;
+                            Atmp++;
+                        }
+                        Rezalt.comparisons++;
+                        AendSer = Atmp;
+                        if(AendSer == AInd) AendSer--;
+                        while (Aindex <= AendSer && Bindex <= BendSer)
+                        {
+                            Rezalt.comparisons++;
+                            if (A[Aindex] < B[Bindex])
+                            {
+                                Rezalt.reinstallation++;
+                                AM[AArrayindex++] = A[Aindex++];
+                            }
+                            else
+                            {
+                                Rezalt.reinstallation++;
+                                AM[AArrayindex++] = B[Bindex++];
+                            }
+                        }
+                        while (Bindex <= BendSer)
+                        {
+                            Rezalt.reinstallation++;
+                            AM[AArrayindex++] = B[Bindex++];
+                        }
+                        while (Aindex <= AendSer)
+                        {
+                            Rezalt.reinstallation++;
+                            AM[AArrayindex++] = A[Aindex++];
+                        }
+                        AB = false;
+                    }
+                    else
+                    {
+                        int Btmp = Bindex;
+                        while (Btmp < BInd - 1 && B[Btmp] <= B[Btmp + 1])
+                        {
+                            Rezalt.comparisons++;
+                            Btmp++;
+                        }
+                        Rezalt.comparisons++;
+                        BendSer = Btmp;
+                        if (BendSer == BInd) BendSer--;
+                        int Atmp = Aindex;
+                        while (Atmp < AInd - 1 && (A[Atmp] <= A[Atmp + 1]))
+                        {
+                            Rezalt.comparisons++;
+                            Atmp++;
+                        }
+                        Rezalt.comparisons++;
+                        AendSer = Atmp;
+                        if (AendSer == AInd) AendSer--;
+                        while (Aindex <= AendSer && Bindex <= BendSer)
+                        {
+                            Rezalt.comparisons++;
+                            if (A[Aindex] < B[Bindex])
+                            {
+                                Rezalt.reinstallation++;
+                                BM[BArrayindex++] = A[Aindex++];
+                            }
+                            else
+                            {
+                                Rezalt.reinstallation++;
+                                BM[BArrayindex++] = B[Bindex++];
+                            }
+                        }
+                        while (Bindex <= BendSer)
+                        {
+                            Rezalt.reinstallation++;
+                            BM[BArrayindex++] = B[Bindex++];
+                        }
+                        while (Aindex <= AendSer)
+                        {
+                            Rezalt.reinstallation++;
+                            BM[BArrayindex++] = A[Aindex++];
+                        }
+                        AB = true;
+                    }
+
+                }
+                for (int i = 0; i < AM.Length; i++) 
+                {
+                    A[i] = AM[i];
+                    B[i] = BM[i];
+                    AM[i] = 0;
+                    BM[i] = 0;
+                }
+                AInd = AArrayindex; BInd = BArrayindex;
+                if (AInd == 0 || BInd == 0) break;
+            }
+
+            for (int i = 0; i < A.Length; i++)
+            {
+                array[i] = A[i];
+            }
+            sw.Stop();
+            Rezalt.time = (ulong)sw.ElapsedMilliseconds;
+            return Rezalt;
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -407,9 +695,11 @@ namespace SiaodLab22_25
             }
             Random rnd = new Random();
             int[] array = new int[Convert.ToInt32(numericUpDown1.Value)];
+            //array[0] = rnd.Next(0, 5);
             for (int i = 0; i < array.Length; i++)
             {
                 array[i] = rnd.Next(0, array.Length);
+                //array[i] =array[i-1]+ rnd.Next(0, 3);
             }
             rezult rez;
             if (dataGridView1.Rows[0].Cells[0].Value.Equals(true))
@@ -444,38 +734,38 @@ namespace SiaodLab22_25
                     dataGridView1.Rows[1].Cells[5].Value = "нет";
                 }
             }
-            //if (dataGridView1.Rows[2].Cells[0].Value.Equals(true))
-            //{
-            //    int[] array_tmp = (int[])array.Clone();
-            //    rez = SortingByDirectInclusions(array_tmp);
-            //    dataGridView1.Rows[2].Cells[2].Value = Convert.ToString(rez.comparisons);
-            //    dataGridView1.Rows[2].Cells[3].Value = Convert.ToString(rez.reinstallation);
-            //    dataGridView1.Rows[2].Cells[4].Value = Convert.ToString(rez.time);
-            //    if (Check(rez.newArray))
-            //    {
-            //        dataGridView1.Rows[2].Cells[5].Value = "да";
-            //    }
-            //    else
-            //    {
-            //        dataGridView1.Rows[2].Cells[5].Value = "нет";
-            //    }
-            //}
-            //if (dataGridView1.Rows[3].Cells[0].Value.Equals(true))
-            //{
-            //    int[] array_tmp = (int[])array.Clone();
-            //    rez = Quicksort(array_tmp, 0, array_tmp.Length);
-            //    dataGridView1.Rows[3].Cells[2].Value = Convert.ToString(rez.comparisons);
-            //    dataGridView1.Rows[3].Cells[3].Value = Convert.ToString(rez.reinstallation);
-            //    dataGridView1.Rows[3].Cells[4].Value = Convert.ToString(rez.time);
-            //    if (Check(rez.newArray))
-            //    {
-            //        dataGridView1.Rows[3].Cells[5].Value = "да";
-            //    }
-            //    else
-            //    {
-            //        dataGridView1.Rows[3].Cells[5].Value = "нет";
-            //    }
-            //}
+            if (dataGridView1.Rows[2].Cells[0].Value.Equals(true))
+            {
+                int[] array_tmp = (int[])array.Clone();
+                rez = mergeNatural(array_tmp);
+                dataGridView1.Rows[2].Cells[2].Value = Convert.ToString(rez.comparisons);
+                dataGridView1.Rows[2].Cells[3].Value = Convert.ToString(rez.reinstallation);
+                dataGridView1.Rows[2].Cells[4].Value = Convert.ToString(rez.time);
+                if (Check(array_tmp))
+                {
+                    dataGridView1.Rows[2].Cells[5].Value = "да";
+                }
+                else
+                {
+                    dataGridView1.Rows[2].Cells[5].Value = "нет";
+                }
+            }
+            if (dataGridView1.Rows[3].Cells[0].Value.Equals(true))
+            {
+                int[] array_tmp = (int[])array.Clone();
+                rez = mergeNaturalOnePhase(array_tmp);
+                dataGridView1.Rows[3].Cells[2].Value = Convert.ToString(rez.comparisons);
+                dataGridView1.Rows[3].Cells[3].Value = Convert.ToString(rez.reinstallation);
+                dataGridView1.Rows[3].Cells[4].Value = Convert.ToString(rez.time);
+                if (Check(array_tmp))
+                {
+                    dataGridView1.Rows[3].Cells[5].Value = "да";
+                }
+                else
+                {
+                    dataGridView1.Rows[3].Cells[5].Value = "нет";
+                }
+            }
             //if (dataGridView1.Rows[4].Cells[0].Value.Equals(true))
             //{
             //    int[] array_tmp = (int[])array.Clone();
@@ -520,3 +810,113 @@ namespace SiaodLab22_25
     }
 
 }
+//while (Aindex < AInd && Bindex < BInd)
+//{
+//    while (B[Bindex] <= B[Bindex + 1] && A[Aindex] <= A[Aindex + 1])
+//    {
+//        Rezalt.comparisons++;
+//        if (A[Aindex] < B[Bindex])
+//        {
+//            Rezalt.reinstallation++;
+//            array[Arrayindex] = A[Aindex];
+//            Aindex++; Arrayindex++;
+//        }
+//        else
+//        {
+//            Rezalt.reinstallation++;
+//            array[Arrayindex] = B[Bindex];
+//            Bindex++; Arrayindex++;
+//        }
+//    }
+//    if (!(B[Bindex] <= B[Bindex + 1]))
+//    {
+//        BendSer = Bindex;
+//        int Atmp = Aindex;
+//        while (Atmp < AInd && (A[Atmp] <= A[Atmp + 1]))
+//        {
+//            Atmp++;
+//        }
+//        AendSer = Atmp;
+//        Rezalt.comparisons++;
+//        while (Bindex <= BendSer && Aindex <= AendSer)
+//            if (A[Aindex] < B[Bindex])
+//            {
+//                Rezalt.reinstallation++;
+//                array[Arrayindex] = A[Aindex];
+//                Aindex++; Arrayindex++;
+//            }
+//            else
+//            {
+//                Rezalt.reinstallation++;
+//                array[Arrayindex] = B[Bindex];
+//                Bindex++; Arrayindex++;
+//            }
+
+//        while (Bindex <= BendSer)
+//        {
+//            Rezalt.reinstallation++;
+//            array[Arrayindex] = B[Bindex];
+//            Bindex++; Arrayindex++;
+//        }
+
+//        while (Aindex <= AendSer)
+//        {
+//            Rezalt.reinstallation++;
+//            array[Arrayindex++] = A[Aindex++];
+//        }
+//    }
+//    else
+//    {
+//        AendSer = Aindex;
+//        int Btmp = Bindex;
+//        while (Btmp < BInd && B[Btmp] <= B[Btmp + 1])
+//        {
+//            Btmp++;
+//        }
+//        BendSer = Btmp;
+//        while (Bindex <= BendSer && Aindex <= AendSer)
+//            if (A[Aindex] < B[Bindex])
+//            {
+//                Rezalt.reinstallation++;
+//                array[Arrayindex] = A[Aindex];
+//                Aindex++; Arrayindex++;
+//            }
+//            else
+//            {
+//                Rezalt.reinstallation++;
+//                array[Arrayindex] = B[Bindex];
+//                Bindex++; Arrayindex++;
+//            }
+
+//        while (Bindex <= BendSer)
+//        {
+//            Rezalt.reinstallation++;
+//            array[Arrayindex] = B[Bindex];
+//            Bindex++; Arrayindex++;
+//        }
+
+//        while (Aindex <= AendSer)
+//        {
+//            Rezalt.reinstallation++;
+//            array[Arrayindex++] = A[Aindex++];
+//        }
+
+//    }
+
+//}
+//while (Aindex < AInd && Bindex < BInd)
+//{
+//    Rezalt.comparisons++;
+//    if (A[Aindex] < B[Bindex])
+//    {
+//        Rezalt.reinstallation++;
+//        array[Arrayindex] = A[Aindex];
+//        Aindex++; Arrayindex++;
+//    }
+//    else
+//    {
+//        Rezalt.reinstallation++;
+//        array[Arrayindex] = B[Bindex];
+//        Bindex++; Arrayindex++;
+//    }
+//}
