@@ -20,12 +20,12 @@ namespace SiaodLab22_25
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            dataGridView1.Rows.Add(4);
+            dataGridView1.Rows.Add(5);
             dataGridView1.Rows[0].Cells[1].Value = "Простое 2Ф";
             dataGridView1.Rows[1].Cells[1].Value = "Простое 1Ф";
             dataGridView1.Rows[2].Cells[1].Value = "Естественное 2Ф";
             dataGridView1.Rows[3].Cells[1].Value = "Естественное 1Ф";
-            //dataGridView1.Rows[4].Cells[1].Value = "Поглощение";
+            dataGridView1.Rows[4].Cells[1].Value = "Поглощение";
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
             {
                 dataGridView1.Rows[i].Cells[0].Value = true;
@@ -665,7 +665,7 @@ namespace SiaodLab22_25
                     BM[i] = 0;
                 }
                 AInd = AArrayindex; BInd = BArrayindex;
-                if (AInd == 0 || BInd == 0) break;
+                if (BInd == 0) break;
             }
 
             for (int i = 0; i < A.Length; i++)
@@ -675,6 +675,34 @@ namespace SiaodLab22_25
             sw.Stop();
             Rezalt.time = (ulong)sw.ElapsedMilliseconds;
             return Rezalt;
+        }
+
+        rezult absorbtionSort(int[] array)
+        {
+            int lengthArray = array.Length;
+            int len = lengthArray * Convert.ToInt32(numericUpDown2.Value) / 100;
+            int[] tmpArray =new int[len];
+
+            int curInd = lengthArray - 1;
+            int ind = 0;
+            Array.Sort(array, lengthArray - len, len);
+            for(int i = 1; i < lengthArray / len; i++)
+            {
+                while (curInd > lengthArray - (i+1)*len - 1)
+                {
+                    tmpArray[ind++] = array[curInd--];
+                }
+                int indSort = curInd;
+                int sInd = curInd + len;
+                while(indSort< lengthArray - (i) * len - 1&&sInd< lengthArray - (i-1) * len - 1)
+                {
+                    if (tmpArray[indSort] < array[sInd])
+                    {
+
+                    }
+                }
+            }
+            return new rezult();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -766,22 +794,22 @@ namespace SiaodLab22_25
                     dataGridView1.Rows[3].Cells[5].Value = "нет";
                 }
             }
-            //if (dataGridView1.Rows[4].Cells[0].Value.Equals(true))
-            //{
-            //    int[] array_tmp = (int[])array.Clone();
-            //    rez = ShellSort(array_tmp);
-            //    dataGridView1.Rows[4].Cells[2].Value = Convert.ToString(rez.comparisons);
-            //    dataGridView1.Rows[4].Cells[3].Value = Convert.ToString(rez.reinstallation);
-            //    dataGridView1.Rows[4].Cells[4].Value = Convert.ToString(rez.time);
-            //    if (Check(rez.newArray))
-            //    {
-            //        dataGridView1.Rows[4].Cells[5].Value = "да";
-            //    }
-            //    else
-            //    {
-            //        dataGridView1.Rows[4].Cells[5].Value = "нет";
-            //    }
-            //}
+            if (dataGridView1.Rows[4].Cells[0].Value.Equals(true))
+            {
+                int[] array_tmp = (int[])array.Clone();
+                rez = absorbtionSort(array_tmp);
+                dataGridView1.Rows[4].Cells[2].Value = Convert.ToString(rez.comparisons);
+                dataGridView1.Rows[4].Cells[3].Value = Convert.ToString(rez.reinstallation);
+                dataGridView1.Rows[4].Cells[4].Value = Convert.ToString(rez.time);
+                if (Check(array_tmp))
+                {
+                    dataGridView1.Rows[4].Cells[5].Value = "да";
+                }
+                else
+                {
+                    dataGridView1.Rows[4].Cells[5].Value = "нет";
+                }
+            }
 
             bool cheked = false;
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
