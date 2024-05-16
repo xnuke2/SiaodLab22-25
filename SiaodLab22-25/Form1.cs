@@ -43,9 +43,9 @@ namespace SiaodLab22_25
             return true;
         }
 
-        rezult mergeSimple(int[] array)
+        Rezult mergeSimple(int[] array)
         {
-            rezult Rezalt = new rezult();
+            Rezult Rezalt = new Rezult();
             Stopwatch sw = new Stopwatch();
             sw.Start();
             int n = array.Length;
@@ -173,9 +173,9 @@ namespace SiaodLab22_25
             Rezalt.time = (ulong)sw.ElapsedMilliseconds;
             return Rezalt;
         }
-        rezult mergeOnePhase(int[] array)
+        Rezult mergeOnePhase(int[] array)
         {
-            rezult Rezalt = new rezult();
+            Rezult Rezalt = new Rezult();
             Stopwatch sw = new Stopwatch();
             sw.Start();
             int n = array.Length;
@@ -391,9 +391,9 @@ namespace SiaodLab22_25
             return Rezalt;
         }
 
-        rezult mergeNatural(int[] array)
+        Rezult mergeNatural(int[] array)
         {
-            rezult Rezalt = new rezult();
+            Rezult Rezalt = new Rezult();
             Stopwatch sw = new Stopwatch();
             sw.Start();
             int n = array.Length;
@@ -507,9 +507,9 @@ namespace SiaodLab22_25
             return Rezalt;
         }
 
-        rezult mergeNaturalOnePhase(int[] array)
+        Rezult mergeNaturalOnePhase(int[] array)
         {
-            rezult Rezalt = new rezult();
+            Rezult Rezalt = new Rezult();
             Stopwatch sw = new Stopwatch();
             sw.Start();
             int n = array.Length;
@@ -677,32 +677,76 @@ namespace SiaodLab22_25
             return Rezalt;
         }
 
-        rezult absorbtionSort(int[] array)
+        Rezult absorbtionSort(int[] array)
         {
+            Rezult rezult = new Rezult();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             int lengthArray = array.Length;
             int len = lengthArray * Convert.ToInt32(numericUpDown2.Value) / 100;
             int[] tmpArray =new int[len];
-
-            int curInd = lengthArray - 1;
-            int ind = 0;
+            int curInd = lengthArray -len- 1;
+            int indTmpArray, indSort, Ind, sInd;
             Array.Sort(array, lengthArray - len, len);
             for(int i = 1; i < lengthArray / len; i++)
             {
+                indTmpArray = 0;
                 while (curInd > lengthArray - (i+1)*len - 1)
                 {
-                    tmpArray[ind++] = array[curInd--];
+                    rezult.reinstallation++;
+                    tmpArray[indTmpArray++] = array[curInd--];
                 }
-                int indSort = curInd;
-                int sInd = curInd + len;
-                while(indSort< lengthArray - (i) * len - 1&&sInd< lengthArray - (i-1) * len - 1)
-                {
-                    if (tmpArray[indSort] < array[sInd])
-                    {
+                Array.Sort(tmpArray);
+                indSort = 0;
+                Ind = curInd+1;
+                sInd = curInd + len+1;
 
-                    }
+                while(indSort< indTmpArray&&sInd< lengthArray)
+                {
+                    rezult.comparisons++;
+                    array[Ind++] = tmpArray[indSort] < array[sInd] ? tmpArray[indSort++] : array[sInd++];
+                    rezult.reinstallation++;
+                }
+                while(indSort< indTmpArray)
+                {
+                    rezult.reinstallation++;
+                    array[Ind++] = tmpArray[indSort++];
+                }
+                while (sInd < lengthArray)
+                {
+                    rezult.reinstallation++;
+                    array[Ind++] = array[sInd++];
                 }
             }
-            return new rezult();
+            indTmpArray = 0;
+            while (curInd >= 0)
+            {
+                rezult.reinstallation++;
+                tmpArray[indTmpArray++] = array[curInd--];
+            }
+            Array.Sort(tmpArray,0,indTmpArray+1);
+            indSort = 0;
+            Ind = curInd + 1;
+            sInd =indTmpArray;
+            while (indSort < indTmpArray && sInd < lengthArray)
+            {
+                rezult.comparisons++;
+                array[Ind++] = tmpArray[indSort] < array[sInd] ? tmpArray[indSort++] : array[sInd++];
+                rezult.reinstallation++;
+            }
+            while (indSort < indTmpArray)
+            {
+                rezult.reinstallation++;
+                array[Ind++] = tmpArray[indSort++];
+            }
+            while (sInd < lengthArray)
+            {
+                rezult.reinstallation++;
+                array[Ind++] = array[sInd++];
+            }
+            sw.Stop();
+            rezult.time =(ulong)sw.ElapsedMilliseconds;
+            return rezult;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -723,13 +767,11 @@ namespace SiaodLab22_25
             }
             Random rnd = new Random();
             int[] array = new int[Convert.ToInt32(numericUpDown1.Value)];
-            //array[0] = rnd.Next(0, 5);
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = rnd.Next(0, array.Length);
-                //array[i] =array[i-1]+ rnd.Next(0, 3);
+                array[i] = rnd.Next(0, array.Length);              
             }
-            rezult rez;
+            Rezult rez;
             if (dataGridView1.Rows[0].Cells[0].Value.Equals(true))
             {
                 int[] array_tmp = (int[])array.Clone();
@@ -737,14 +779,7 @@ namespace SiaodLab22_25
                 dataGridView1.Rows[0].Cells[2].Value = Convert.ToString(rez.comparisons);
                 dataGridView1.Rows[0].Cells[3].Value = Convert.ToString(rez.reinstallation);
                 dataGridView1.Rows[0].Cells[4].Value = Convert.ToString(rez.time);
-                if (Check(array_tmp))
-                {
-                    dataGridView1.Rows[0].Cells[5].Value = "да";
-                }
-                else
-                {
-                    dataGridView1.Rows[0].Cells[5].Value = "нет";
-                }
+                dataGridView1.Rows[0].Cells[5].Value = Check(array_tmp) ? "Да" : "Нет";
             }
             if (dataGridView1.Rows[1].Cells[0].Value.Equals(true))
             {
@@ -753,14 +788,7 @@ namespace SiaodLab22_25
                 dataGridView1.Rows[1].Cells[2].Value = Convert.ToString(rez.comparisons);
                 dataGridView1.Rows[1].Cells[3].Value = Convert.ToString(rez.reinstallation);
                 dataGridView1.Rows[1].Cells[4].Value = Convert.ToString(rez.time);
-                if (Check(array_tmp))
-                {
-                    dataGridView1.Rows[1].Cells[5].Value = "да";
-                }
-                else
-                {
-                    dataGridView1.Rows[1].Cells[5].Value = "нет";
-                }
+                dataGridView1.Rows[1].Cells[5].Value = Check(array_tmp) ? "Да" : "Нет";
             }
             if (dataGridView1.Rows[2].Cells[0].Value.Equals(true))
             {
@@ -769,14 +797,7 @@ namespace SiaodLab22_25
                 dataGridView1.Rows[2].Cells[2].Value = Convert.ToString(rez.comparisons);
                 dataGridView1.Rows[2].Cells[3].Value = Convert.ToString(rez.reinstallation);
                 dataGridView1.Rows[2].Cells[4].Value = Convert.ToString(rez.time);
-                if (Check(array_tmp))
-                {
-                    dataGridView1.Rows[2].Cells[5].Value = "да";
-                }
-                else
-                {
-                    dataGridView1.Rows[2].Cells[5].Value = "нет";
-                }
+                dataGridView1.Rows[2].Cells[5].Value= Check(array_tmp)?"Да":"Нет";
             }
             if (dataGridView1.Rows[3].Cells[0].Value.Equals(true))
             {
@@ -785,14 +806,7 @@ namespace SiaodLab22_25
                 dataGridView1.Rows[3].Cells[2].Value = Convert.ToString(rez.comparisons);
                 dataGridView1.Rows[3].Cells[3].Value = Convert.ToString(rez.reinstallation);
                 dataGridView1.Rows[3].Cells[4].Value = Convert.ToString(rez.time);
-                if (Check(array_tmp))
-                {
-                    dataGridView1.Rows[3].Cells[5].Value = "да";
-                }
-                else
-                {
-                    dataGridView1.Rows[3].Cells[5].Value = "нет";
-                }
+                dataGridView1.Rows[3].Cells[5].Value = Check(array_tmp) ? "Да" : "Нет";
             }
             if (dataGridView1.Rows[4].Cells[0].Value.Equals(true))
             {
@@ -801,14 +815,7 @@ namespace SiaodLab22_25
                 dataGridView1.Rows[4].Cells[2].Value = Convert.ToString(rez.comparisons);
                 dataGridView1.Rows[4].Cells[3].Value = Convert.ToString(rez.reinstallation);
                 dataGridView1.Rows[4].Cells[4].Value = Convert.ToString(rez.time);
-                if (Check(array_tmp))
-                {
-                    dataGridView1.Rows[4].Cells[5].Value = "да";
-                }
-                else
-                {
-                    dataGridView1.Rows[4].Cells[5].Value = "нет";
-                }
+                dataGridView1.Rows[4].Cells[5].Value = Check(array_tmp) ? "Да" : "Нет";
             }
 
             bool cheked = false;
@@ -819,8 +826,7 @@ namespace SiaodLab22_25
                     cheked = true;
                     break;
                 }
-
-            }
+                            }
             if (!cheked)
             {
                 label3.Visible = true;
@@ -828,7 +834,7 @@ namespace SiaodLab22_25
             }
         }
 
-        public struct rezult
+        public struct Rezult
         {
             public ulong time;
             public ulong comparisons;
